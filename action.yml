@@ -1,0 +1,52 @@
+name: container-build
+inputs:
+  checkout-deploy-key:
+    description: "checkout deploy key"
+    required: true
+  registry:
+    description: "container registry"
+    default: ghcr.io
+  token:
+    description: "github token"
+    required: true
+  platforms:
+    description: "container target platforms"
+    default: "linux/amd64,linux/arm/v7,linux/arm64"
+runs:
+  using: "composite"
+  steps:
+    - name: checkout
+      uses: actions/checkout@v2
+      with:
+        ssh-key: "${{ inputs.checkout-deploy-key }}"
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Log into registry ${{ inputs.registry }}
+      uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ github.actor }}
+        password: ${{ inputs.token }}
+
+    - name: Docker meta
+      id: meta
+      uses: docker/metadata-action@v3
+      with:
+        images: ${{ inputs.registry }}/${{ github.repository }}
+        tags: |
+          type=ref,event=branch
+          type=semver,pattern={{version}}
+
+    - name: Build and push container image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        platforms: ${{ inputs.platforms }}
