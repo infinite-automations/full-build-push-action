@@ -2,7 +2,7 @@ name: container-build
 inputs:
   checkout-deploy-key:
     description: "checkout deploy key"
-    required: true
+    default: ""
   registry:
     description: "container registry"
     default: ghcr.io
@@ -15,10 +15,15 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: checkout
+    - name: checkout with github token
+      uses: actions/checkout@v2
+      if: ${{ inputs.checkout-deploy-key == '' }}
+
+    - name: checkout with deploy key
       uses: actions/checkout@v2
       with:
         ssh-key: "${{ inputs.checkout-deploy-key }}"
+      if: ${{ inputs.checkout-deploy-key != '' }}
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
@@ -27,7 +32,7 @@ runs:
       uses: docker/setup-buildx-action@v1
 
     - name: Log into registry ${{ inputs.registry }}
-      uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
+      uses: docker/login-action@v1
       with:
         registry: ${{ inputs.registry }}
         username: ${{ github.actor }}
