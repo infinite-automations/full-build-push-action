@@ -6,6 +6,9 @@ inputs:
   registry:
     description: "container registry"
     default: ghcr.io
+  user:
+    description: "container registry user"
+    default: ${{ github.actor }}
   token:
     description: "github token"
     required: true
@@ -35,7 +38,7 @@ runs:
       uses: docker/login-action@v1
       with:
         registry: ${{ inputs.registry }}
-        username: ${{ github.actor }}
+        username: ${{ inputs.user }}
         password: ${{ inputs.token }}
 
     - name: Docker meta
@@ -45,6 +48,9 @@ runs:
         images: ${{ inputs.registry }}/${{ github.repository }}
         tags: |
           type=ref,event=branch
+          type=sha,prefix=,format=short
+          type=edge,branch=main
+          type=edge,branch=master
           type=semver,pattern={{version}}
 
     - name: Build and push container image
