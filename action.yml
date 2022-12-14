@@ -1,4 +1,5 @@
 name: container-build
+description: Simple github action that uses various docker actions to build and publish multiarch container images with meaningful tags.
 inputs:
   checkout-deploy-key:
     description: "checkout deploy key"

@@ -1,0 +1,19 @@
+name: release
+on:
+  push:
+    branches:
+      - master
+      - main
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    container: smartive/semantic-release-image:latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          ssh-key: "${{ secrets.COMMIT_KEY }}"
+      - name: install semantic-release/github
+        run: npm install semantic-release @semantic-release/github
+      - name: semantic-release
+        run: semantic-release
