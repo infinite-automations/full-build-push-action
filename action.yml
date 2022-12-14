@@ -6,11 +6,13 @@ inputs:
   registry:
     description: "container registry"
     default: ghcr.io
+    required: true
   user:
     description: "container registry user"
     default: ${{ github.actor }}
+    required: true
   token:
-    description: "github token"
+    description: "container registry token"
     required: true
   platforms:
     description: "container target platforms"
