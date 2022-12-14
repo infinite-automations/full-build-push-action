@@ -1,4 +1,4 @@
-name: container-build
+name: container-build-push
 description: Simple github action that uses various docker actions to build and publish multiarch container images with meaningful tags.
 inputs:
   checkout-deploy-key:
