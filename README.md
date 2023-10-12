@@ -15,13 +15,15 @@ Included actions:
 
 ## configuration / inputs
 
-|key|description|default|required|
-|-|-|-|-|
-|checkout-deploy-key|""|""|no|
-|registry|container registry| ghcr.io  |yes|
-|user|container registry user|${{ github.actor }}|yes|
-|token|container registry token|none|yes|
-|platforms|container target platforms|linux/amd64,linux/arm/v7,linux/arm64|no|
+| key                 | description                                                       | default                              | required |
+| ------------------- | ----------------------------------------------------------------- | ------------------------------------ | -------- |
+| context             | build's context is the set of files located in the specified path | "."                                  | no       |
+| file                | path to the Dockerfile                                            | ./Dockerfile                         | no       |
+| checkout-deploy-key | ""                                                                | ""                                   | no       |
+| registry            | container registry                                                | ghcr.io                              | yes      |
+| user                | container registry user                                           | ${{ github.actor }}                  | yes      |
+| token               | container registry token                                          | none                                 | yes      |
+| platforms           | container target platforms                                        | linux/amd64,linux/arm/v7,linux/arm64 | no       |
 
 ## examples
 
@@ -96,11 +98,10 @@ jobs:
     container: smartive/semantic-release-image:latest
     steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           ssh-key: "${{ secrets.COMMIT_KEY }}"
-      - name: install semantic-release/github
-        run: npm install semantic-release @semantic-release/github
-      - name: semantic-release
-        run: semantic-release
-```
+      - name: Semantic Release
+        uses: cycjimmy/semantic-release-action@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
