@@ -1,6 +1,12 @@
 name: container-build-push
 description: Simple github action that uses various docker actions to build and publish multiarch container images with meaningful tags.
 inputs:
+  context:
+    description: "build's context is the set of files located in the specified path"
+    default: "."
+  file:
+    description: "path to the Dockerfile (default ./Dockerfile)"
+    default: "./Dockerfile"
   checkout-deploy-key:
     description: "checkout deploy key"
     default: ""
@@ -10,7 +16,7 @@ inputs:
     required: true
   user:
     description: "container registry user"
-    default: ${{ github.actor }}
+    default: "${{ github.actor }}"
     required: true
   token:
     description: "container registry token"
@@ -50,16 +56,17 @@ runs:
       with:
         images: ${{ inputs.registry }}/${{ github.repository }}
         tags: |
-          type=ref,event=branch
-          type=sha,prefix=,format=short
+          type=semver,pattern={{version}}
           type=edge,branch=main
           type=edge,branch=master
-          type=semver,pattern={{version}}
+          type=ref,event=branch
+          type=sha,prefix=,format=short
 
     - name: Build and push container image
       uses: docker/build-push-action@v4
       with:
-        context: .
+        context: ${{ inputs.context }}
+        file: ${{ inputs.file }}
         push: true
         provenance: false # https://github.com/docker/build-push-action/issues/820
         tags: ${{ steps.meta.outputs.tags }}
