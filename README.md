@@ -48,7 +48,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
       - name: container-build
-        uses: kaiehrhardt/full-build-push-action@main
+        uses: infinite-automations/full-build-push-action@main
         with:
           token: "${{ secrets.GITHUB_TOKEN }}"
 ```
@@ -77,7 +77,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v2
       - name: container-build
-        uses: kaiehrhardt/full-build-push-action@main
+        uses: infinite-automations/full-build-push-action@main
         with:
           token: "${{ secrets.GITHUB_TOKEN }}"
           checkout-deploy-key: "${{ secrets.COMMIT_KEY }}"
