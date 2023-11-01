@@ -95,7 +95,10 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    container: smartive/semantic-release-image:latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     steps:
       - name: checkout
         uses: actions/checkout@v4
