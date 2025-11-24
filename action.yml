@@ -28,23 +28,23 @@ runs:
   using: "composite"
   steps:
     - name: checkout with github token
-      uses: actions/checkout@v4
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       if: ${{ inputs.checkout-deploy-key == '' }}
 
     - name: checkout with deploy key
-      uses: actions/checkout@v4
+      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       with:
         ssh-key: "${{ inputs.checkout-deploy-key }}"
       if: ${{ inputs.checkout-deploy-key != '' }}
 
     - name: Set up QEMU
-      uses: docker/setup-qemu-action@v3
+      uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3
 
     - name: Log into registry ${{ inputs.registry }}
-      uses: docker/login-action@v3
+      uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
       with:
         registry: ${{ inputs.registry }}
         username: ${{ inputs.user }}
@@ -52,7 +52,7 @@ runs:
 
     - name: Docker meta
       id: meta
-      uses: docker/metadata-action@v5
+      uses: docker/metadata-action@318604b99e75e41977312d83839a89be02ca4893 # v5
       with:
         images: ${{ inputs.registry }}/${{ github.repository }}
         tags: |
@@ -63,7 +63,7 @@ runs:
           type=sha,prefix=,format=short
 
     - name: Build and push container image
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5
       with:
         context: ${{ inputs.context }}
         file: ${{ inputs.file }}
