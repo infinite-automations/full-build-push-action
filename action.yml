@@ -28,11 +28,11 @@ runs:
   using: "composite"
   steps:
     - name: checkout with github token
-      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
       if: ${{ inputs.checkout-deploy-key == '' }}
 
     - name: checkout with deploy key
-      uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6
       with:
         ssh-key: "${{ inputs.checkout-deploy-key }}"
       if: ${{ inputs.checkout-deploy-key != '' }}
