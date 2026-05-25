@@ -13,98 +13,87 @@ Included actions:
 - [docker/metadata-action](https://github.com/marketplace/actions/docker-metadata-action)
 - [docker/build-push-action](https://github.com/marketplace/actions/build-and-push-docker-images)
 
-## configuration / inputs
+<!-- action-docs-all source="action.yml" project="infinite-automations/full-build-push-action" version="0.0.0" -->
+## Description
 
-| key                 | description                                                       | default                              | required |
-| ------------------- | ----------------------------------------------------------------- | ------------------------------------ | -------- |
-| context             | build's context is the set of files located in the specified path | "."                                  | no       |
-| file                | path to the Dockerfile                                            | ./Dockerfile                         | no       |
-| checkout-deploy-key | ""                                                                | ""                                   | no       |
-| registry            | container registry                                                | ghcr.io                              | yes      |
-| user                | container registry user                                           | ${{ github.actor }}                  | yes      |
-| token               | container registry token                                          | none                                 | yes      |
-| platforms           | container target platforms                                        | linux/amd64,linux/arm/v7,linux/arm64 | no       |
+Simple github action that uses various docker actions to build and publish multiarch container images with meaningful tags.
 
-## examples
+## Inputs
 
-### without semantic release
+| name | description | required | default |
+| --- | --- | --- | --- |
+| `context` | <p>build's context is the set of files located in the specified path</p> | `false` | `.` |
+| `file` | <p>path to the Dockerfile (default ./Dockerfile)</p> | `false` | `./Dockerfile` |
+| `checkout-deploy-key` | <p>checkout deploy key</p> | `false` | `""` |
+| `registry` | <p>container registry</p> | `true` | `ghcr.io` |
+| `user` | <p>container registry user</p> | `true` | `${{ github.actor }}` |
+| `token` | <p>container registry token</p> | `true` | `""` |
+| `push` | <p>push the image to the registry</p> | `false` | `true` |
+| `provenance` | <p>generate provenance attestation for the build</p> | `false` | `false` |
+| `platforms` | <p>container target platforms</p> | `false` | `linux/amd64,linux/arm/v7,linux/arm64` |
+
+
+## Runs
+
+This action is a `composite` action.
+
+## Usage
 
 ```yaml
-name: container build
-on:
-  push:
-    tags:
-      - '**'
-    branches:
-      - '**'
-  schedule:
-    - cron: '0 0 * * *'
-jobs:
-  container-build:
-    runs-on: ubuntu-latest
-    permissions:
-      packages: write
-    steps:
-      - name: checkout
-        uses: actions/checkout@v2
-      - name: container-build
-        uses: infinite-automations/full-build-push-action@main
-        with:
-          token: "${{ secrets.GITHUB_TOKEN }}"
+- uses: infinite-automations/full-build-push-action@0.0.0
+  with:
+    context:
+    # build's context is the set of files located in the specified path
+    #
+    # Required: false
+    # Default: .
+
+    file:
+    # path to the Dockerfile (default ./Dockerfile)
+    #
+    # Required: false
+    # Default: ./Dockerfile
+
+    checkout-deploy-key:
+    # checkout deploy key
+    #
+    # Required: false
+    # Default: ""
+
+    registry:
+    # container registry
+    #
+    # Required: true
+    # Default: ghcr.io
+
+    user:
+    # container registry user
+    #
+    # Required: true
+    # Default: ${{ github.actor }}
+
+    token:
+    # container registry token
+    #
+    # Required: true
+    # Default: ""
+
+    push:
+    # push the image to the registry
+    #
+    # Required: false
+    # Default: true
+
+    provenance:
+    # generate provenance attestation for the build
+    #
+    # Required: false
+    # Default: false
+
+    platforms:
+    # container target platforms
+    #
+    # Required: false
+    # Default: linux/amd64,linux/arm/v7,linux/arm64
 ```
-
-### with semantic release
-
-container-build.yml
-
-```yaml
-name: container build
-on:
-  push:
-    tags:
-      - '**'
-    branches:
-      - '**'
-      - '!master'
-  schedule:
-    - cron: '0 0 * * *'
-jobs:
-  container-build:
-    runs-on: ubuntu-latest
-    permissions:
-      packages: write
-    steps:
-      - name: checkout
-        uses: actions/checkout@v2
-      - name: container-build
-        uses: infinite-automations/full-build-push-action@main
-        with:
-          token: "${{ secrets.GITHUB_TOKEN }}"
-          checkout-deploy-key: "${{ secrets.COMMIT_KEY }}"
-```
-
-release.yml
-
-```yaml
-name: release
-on:
-  push:
-    branches:
-      - master
-      - main
-jobs:
-  release:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-        with:
-          ssh-key: "${{ secrets.COMMIT_KEY }}"
-      - name: Semantic Release
-        uses: cycjimmy/semantic-release-action@v4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+<!-- action-docs-all source="action.yml" project="infinite-automations/full-build-push-action" version="0.0.0" -->

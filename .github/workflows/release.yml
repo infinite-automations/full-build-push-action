@@ -1,4 +1,6 @@
-name: release
+---
+name: Release
+
 on:
   pull_request:
     branches:
@@ -7,52 +9,62 @@ on:
     branches:
       - main
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 permissions: {}
 
 jobs:
+  # for security reasons we lint before any other code gets executed
+  lint:
+    name: Lint
+    uses: infinite-automations/workflows/.github/workflows/lint.yml@7cad5f58cd6cf4a95377b0eeab1b0ab581272ed9 # v1.0.1
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-lint
+      cancel-in-progress: true
+
   test:
     name: Test
+    needs:
+      - lint
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       packages: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-test
+      cancel-in-progress: true
     steps:
-      - name: checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
       - name: test
         uses: "./"
         with:
           token: "${{ secrets.GITHUB_TOKEN }}"
-          context: ./testdata
-          file: ./testdata/Dockerfile
+          context: ./test
+          file: ./test/Dockerfile
 
   release:
     name: Release
     needs:
       - test
-    runs-on: ubuntu-latest
     permissions:
-      contents: read
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      - name: Get GitHub App Token
-        id: get_token
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
-        with:
-          app-id: ${{ secrets.APP_ID_SEMREL }}
-          private-key: ${{ secrets.APP_KEY_SEMREL }}
-
-      - name: Create Release
-        uses: cycjimmy/semantic-release-action@b12c8f6015dc215fe37bc154d4ad456dd3833c90 # v6.0.0
-        env:
-          GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
-        with:
-          dry-run: ${{ github.event_name != 'push' }}
+      contents: write
+      issues: write
+      packages: read
+      pull-requests: write
+      statuses: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-release
+      cancel-in-progress: false
+    uses: infinite-automations/workflows/.github/workflows/ci-terraform-module.yml@7cad5f58cd6cf4a95377b0eeab1b0ab581272ed9 # v1.0.1
+    with:
+      dry-run: ${{ github.event_name == 'pull_request' }}
+      skip-lint: true
+    secrets:
+      APP_ID: ${{ secrets.APP_ID_SEMREL }}
+      APP_PRIVATE_KEY: ${{ secrets.APP_KEY_SEMREL }}
